@@ -1,0 +1,45 @@
+﻿
+@inject CuentaBancariaService cuentaBancariaService
+@inject NavigationManager navManager
+
+<h1>Cuentas Bancarias</h1>
+
+<table class="table table-hover table-bordered">
+    <thead>
+        <tr>
+            <th>Nombres del cliente</th>
+            <th>Apellidos del cliente</th>
+            <th>Código de la cuenta</th>
+            <th>Descripción</th>
+            <th>Update/Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cuenta in cuentasBancarias)
+        {
+            <tr>
+                <td>@cuenta.Nombres</td>
+                <td>@cuenta.Apellidos</td>
+                <td>@cuenta.Codigo</td>
+                <td>@cuenta.Descripcion</td>
+                <td>
+                    <div class="d-grid gap-2 d-md-block">
+                        <btn class="btn btn-success" @onclick="@(()=> this.navManager.NavigateTo($"cuenta/update/{cuenta.Id}"))">Update Cuenta</btn>
+                        <br>
+                        <btn class="btn btn-danger" @onclick="@(()=> this.cuentaBancariaService.DeleteCuentaBancaria(cuenta.Id))">Delete Cuenta</btn>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<button class="btn btn-success" @onclick= "@(()=> this.navManager.NavigateTo("cuenta/add"))">Add Cuenta Bancaria</button>
+@code {
+    List<CuentaBancariaDtoOut>? cuentasBancarias = new List<CuentaBancariaDtoOut>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.cuentasBancarias = await cuentaBancariaService.GetCuentasBancarias();
+    }
+}

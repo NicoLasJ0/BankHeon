@@ -1,0 +1,82 @@
+﻿@inject CuentaBancariaService cuentaService
+@inject BancosService bancosService
+@inject TipoCuentaService tpcService
+@inject ClientesService clientesService
+@inject NavigationManager navManager
+
+
+<h1>Update Cuenta Bancaria</h1>
+
+<EditForm Model="@cuentaBancaria" OnSubmit="@SaveCuentaBancaria">
+    <div class="mb-3">
+        <label>Id de la cuenta</label>
+        <InputNumber @bind-Value="@cuentaDto.Id" disabled readonly class="form-control"></InputNumber>
+    </div>
+    <div class="mb-3">
+        <label>Código de la cuenta</label>
+        <InputText @bind-Value="@cuentaBancaria.CubCodigo" class="form-control" placeholder="@cuentaDto.Codigo"></InputText>
+    </div>
+    <div class="mb-3">
+        <InputSelect @bind-Value= "@cuentaBancaria.BcoId" class="form-select">
+            <option>Escoge el banco</option>
+            @foreach (var banco in bancos)
+            {
+                <option value="@banco.BcoId">@banco.BcoNombre</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="mb-3">
+        <InputSelect @bind-Value="@cuentaBancaria.CliId" class="form-select">
+            <option>Seleccione su usuario</option>
+            @foreach (var cliente in clientes)
+            {
+                <option value="@cliente.CliId">@cliente.Nombres @cliente.Apellidos</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="mb-3">
+        <InputSelect @bind-Value="@cuentaBancaria.TpcId" class="form-select">
+            <option>Seleccione el tipo de cuenta</option>
+            @foreach (var tp in tpc)
+            {
+                <option value="@tp.TpcId">@tp.TpcDescripcion</option>
+            }
+        </InputSelect>
+    </div>
+    <div>
+        <label>Descripción de la cuenta</label>
+        <InputText class="form-control" @bind-Value="@cuentaBancaria.CubDescripcion" placeholder="@cuentaDto.Descripcion"></InputText>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Update Cuenta</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public string CubId { get; set; }
+
+    CuentaBancariaDtoOut? cuentaDto = new CuentaBancariaDtoOut();
+
+    CuentaBancaria cuentaBancaria = new CuentaBancaria();
+
+    List<Bancos> bancos = new List<Bancos>();
+
+    List<ClienteDtoOut> clientes = new List<ClienteDtoOut>();
+
+    List<TipoCuenta> tpc = new List<TipoCuenta>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        this.cuentaDto = await this.cuentaService.GetCuentaBancaria(CubId);
+        this.bancos = await this.bancosService.GetBancos();
+        this.clientes = await this.clientesService.GetClientes();
+        this.tpc = await this.tpcService.GetTipoCuentas();
+    }
+
+    private async void SaveCuentaBancaria()
+    {
+        this.cuentaBancaria.CubId = Int32.Parse(CubId);
+        await this.cuentaService.UpdateCuentaBancaria(cuentaBancaria);
+        this.navManager.NavigateTo("cuenta");
+    } 
+}

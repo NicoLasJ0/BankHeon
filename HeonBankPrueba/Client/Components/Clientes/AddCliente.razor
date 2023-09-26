@@ -1,0 +1,51 @@
+﻿@page "/clientes/add"
+@inject TipoIdentificacionService tpoIdService
+@inject ClientesService clientesService
+@inject NavigationManager navManager
+
+<EditForm Model="@cliente" OnSubmit="@SaveClientes">
+    <div class="row">
+        <div class="col">
+            <label>Nombre</label>
+            <InputText class="form-control" @bind-Value= "@cliente.CliNombres"></InputText>
+        </div>
+        <div class="col">
+            <label>Apellidos</label>
+            <InputText class="form-control" @bind-Value="@cliente.CliApellidos"></InputText>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <label>Documento de Identidad</label>
+        <InputText class="form-control" @bind-Value="@cliente.CliCodigo"></InputText>
+    </div>
+    <div class="mb-3">
+        <InputSelect @bind-Value= "cliente.TpiId" class="form-select">
+            <option>Seleccione el tipo de identificación</option>
+            @foreach (var tipo in tipos)
+            {
+                <option value="@tipo.TpiId">@tipo.TpiDescripcion</option>
+            }
+        </InputSelect>
+    </div>    
+    
+    <button type="submit" class="btn btn-primary">Add Cliente</button>
+
+</EditForm>
+
+@code {
+    Clientes cliente = new Clientes();
+    List<TipoIdentificacion>? tipos = new List<TipoIdentificacion>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.tipos = await tpoIdService.GetTipoIdentificacion();
+    }
+
+    private async Task SaveClientes()
+    {
+        await this.clientesService.CreateClientes(cliente);
+        this.navManager.NavigateTo("clientes");
+    }
+
+}

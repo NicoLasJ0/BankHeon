@@ -1,0 +1,75 @@
+﻿@inject TransaccionService transaccionService
+@inject TipoTransaccionService tpTrnsService
+@inject ClientesService clientesService
+@inject FormaPagoService formaPagoService
+@inject CuentaBancariaService cuentaService
+@inject NavigationManager navManager
+
+<h3>Add Transaccion</h3>
+
+<EditForm Model="@transaccion" OnSubmit="@CreateTransaccion">
+    <div class="row">
+        <div class="col">
+            <InputSelect @bind-Value="@transaccion.TpoTrnsId" class="form-select">
+                <option>Seleccione el tipo de transaccion</option>
+                @foreach (var tpoTrns in tiposTrns)
+                {
+                    <option value="@tpoTrns.TpoTrnsId">@tpoTrns.TpoTrnsDescripcion</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="col">
+            <InputSelect @bind-Value="@transaccion.CubId" class="form-select">
+                <option>Seleccion el titular de la cuenta</option>
+                @foreach (var cub in cuentasBancarias)
+                {
+                    <option value="@cub.Id">@cub.Nombres</option>
+
+                }
+            </InputSelect>
+        </div>
+    </div>
+    <br />
+    <div class="mb-3">
+        <InputSelect @bind-Value="@transaccion.FrmPgoId" class="form-select">
+            <option>Seleccione la forma de pago</option>
+            @foreach (var frmPgo in formasPago)
+            {
+                <option value="@frmPgo.FrmPgoId">@frmPgo.FrmPgoDescripcion</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="mb-3">
+        <label>Monto</label>
+        <InputNumber @bind-Value="@transaccion.TrnsMonto" class="form-control"></InputNumber>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Add Transaccion</button>
+</EditForm>
+
+@code {
+    Transaccion transaccion = new Transaccion();
+    List<ClienteDtoOut> clientes = new List<ClienteDtoOut>();
+    List<CuentaBancariaDtoOut> cuentasBancarias = new List<CuentaBancariaDtoOut>();
+    List<FormaPago> formasPago = new List<FormaPago>();
+    List<TipoTransaccion> tiposTrns = new List<TipoTransaccion>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        tiposTrns = await tpTrnsService.GetTipoTransaccion();
+        cuentasBancarias = await cuentaService.GetCuentasBancarias();
+        formasPago = await formaPagoService.GetFormasPago();
+        clientes = await clientesService.GetClientes();
+    }
+
+    private async void CreateTransaccion()
+    {
+        int id = transaccion.CubId;
+        var cuenta = cuentasBancarias.FirstOrDefault(x => id == x.Id);
+        var cliente = clientes.FirstOrDefault(x => x.Nombres == cuenta.Nombres);
+        transaccion.CliId = cliente.CliId;
+        
+        await this.transaccionService.CreateTransaccion(transaccion);
+        this.navManager.NavigateTo("transaccion");
+    }
+}

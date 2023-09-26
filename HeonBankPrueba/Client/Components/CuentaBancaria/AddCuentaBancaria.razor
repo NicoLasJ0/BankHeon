@@ -1,0 +1,72 @@
+﻿@inject CuentaBancariaService cuentaService
+@inject BancosService bancosService
+@inject TipoCuentaService tpcService
+@inject ClientesService clientesService
+@inject NavigationManager navManager
+
+
+<h1>Add Cuenta Bancaria</h1>
+
+<EditForm Model="@cuentaBancaria" OnSubmit="@CreateCuentaBancaria">
+    <div class="mb-3">
+        <label>Código de la cuenta</label>
+        <InputText @bind-Value="@cuentaBancaria.CubCodigo" class="form-control"></InputText>
+    </div>
+    <div class="mb-3">
+        <InputSelect class="form-select" @bind-Value= "@cuentaBancaria.BcoId">
+            <option>Seleccione el Banco</option>
+            @foreach (var banco in bancos)
+            {
+                <option value="@banco.BcoId">@banco.BcoNombre</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="mb-3">
+        <InputSelect @bind-Value= "@cuentaBancaria.CliId" class="form-select">
+            <option>Seleccione su usuario</option>
+            @foreach (var cliente in clientes)
+            {
+                <option value="@cliente.CliId">@cliente.Nombres @cliente.Apellidos</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="mb-3">
+        <InputSelect @bind-Value="@cuentaBancaria.TpcId" class="form-select">
+            <option>Seleccione el tipo de cuenta</option>
+            @foreach (var tp in tpc)
+            {
+                <option value="@tp.TpcId">@tp.TpcDescripcion</option>
+            }
+        </InputSelect>
+    </div>
+    <div>
+        <label>Descripción de la cuenta</label>
+        <InputText class="form-control" @bind-Value= "@cuentaBancaria.CubDescripcion"></InputText>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Cuenta</button>
+</EditForm>
+
+<br />
+
+
+@code {
+    List<Bancos> bancos = new List<Bancos>();
+    List<TipoCuenta> tpc = new List<TipoCuenta>();
+    List<ClienteDtoOut> clientes = new List<ClienteDtoOut>();
+    CuentaBancaria cuentaBancaria = new CuentaBancaria();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.bancos = await bancosService.GetBancos();
+        this.tpc = await tpcService.GetTipoCuentas();
+        this.clientes = await clientesService.GetClientes();
+    }
+
+    private async void CreateCuentaBancaria()
+    {
+        await this.cuentaService.CreateCuentaBancaria(cuentaBancaria);
+        this.navManager.NavigateTo("cuenta");
+        Console.WriteLine(cuentaBancaria.CubDescripcion);
+    }
+}

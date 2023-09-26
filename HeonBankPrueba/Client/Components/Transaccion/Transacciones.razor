@@ -1,0 +1,63 @@
+﻿@inject TransaccionService transaccionService
+@inject NavigationManager navManager
+@inject CuentaBancariaService cubService
+
+<h1>Transacciones</h1>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Nombres y apellidos</th>
+            <th>Monto</th>
+            <th>Código Cuenta</th>
+            <th>Forma Pago</th>
+            <th>TipoTransaccion</th>
+            <th>Update/delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var transaccion in transacciones)
+        {
+            <tr>
+                <td>@transaccion.Nombres @transaccion.Apellidos</td>
+                <td>@transaccion.Monto</td>
+                <td>@transaccion.CuentaBancariaCodigo</td>
+                <td>@transaccion.FormaPago</td>
+                <td>@transaccion.TipoTransaccion</td>
+                <td>
+                    <div class="row">
+                        <div class="col">
+                            
+                            <button class="btn btn-success" @onclick="@(()=> this.navManager.NavigateTo($"transaccion/update/{transaccion.Id}"))">Update</button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-danger" @onclick="@(()=> this.transaccionService.DeleteTransaccion(transaccion.Id.ToString()))">Delete</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<br />
+<button @onclick= "@(()=> this.navManager.NavigateTo("transaccion/add"))" class="btn btn-success">Add Transaccion</button>
+
+@code {
+        List<TransaccionDtoOut> transacciones = new List<TransaccionDtoOut>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        this.transacciones = await this.transaccionService.GetTransacciones();
+    }
+    private async void DeleteTransaccion(int trnsId)
+    {
+        //var transaccion = transacciones.FirstOrDefault(x=> x.Id == trnsId);
+        //var cuentas = await this.cubService.GetCuentasBancarias();
+        //var cuenta = cuentas.FirstOrDefault(x=> x.Nombres == transaccion.Nombres);
+        //await cubService.DeleteCuentaBancaria(cuenta.Id);
+        await this.transaccionService.DeleteTransaccion(trnsId.ToString());
+
+
+    }
+}

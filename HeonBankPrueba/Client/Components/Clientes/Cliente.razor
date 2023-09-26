@@ -1,0 +1,39 @@
+﻿@inject ClientesService clientesService
+@inject NavigationManager navManager
+
+<h1>Clientes</h1>
+
+<table class="table table-hover table-bordered">
+    <thead>
+        <tr>
+            <th>Cliente Código</th>
+            <th>Cliente Nombres</th>
+            <th>Cliente Apellidos</th>
+            <th>Update Cliente</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cliente in clientes)
+        {
+            <tr>
+                <td>@cliente.Codigo</td>
+                <td>@cliente.Nombres</td>
+                <td>@cliente.Apellidos</td>
+                <td>
+                    <button class="btn btn-success" @onclick="@(()=> this.navManager.NavigateTo("clientes/update/" + $"{cliente.CliId}"))">Update</button>
+                    <button class="btn btn-danger" @onclick="@(()=> this.clientesService.DeleteProduct(cliente.CliId))">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<buttton class="btn btn-success" @onclick= "@(()=> this.navManager.NavigateTo("clientes/add"))">Add Cliente</buttton>
+
+@code {
+    List<ClienteDtoOut>? clientes = new List<ClienteDtoOut>();
+    protected override async Task OnInitializedAsync()
+    {
+        clientes = await clientesService.GetClientes();
+    }
+}
