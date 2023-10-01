@@ -1,0 +1,8 @@
+CREATE OR ALTER PROCEDURE Sp_DeleteClients(
+	@CliId INT
+)AS
+BEGIN
+	DELETE FROM Clientes WHERE CliId= @CliId;
+END
+SELECT * FROM CuentaBancaria
+
